@@ -1,0 +1,87 @@
+#include <SoftwareSerial.h>
+SoftwareSerial mySerial(10, 11);//(Rx,Tx)
+const int trigPin = 12;
+const int echoPin = 13;
+const int trigPin1 = 2;
+const int echoPin1 = 3;
+long duration;
+int distance;
+long duration1;
+int distance1;
+void setup()
+{
+ mySerial.begin(9600); // Setting the baud rate of GSM Module
+ // Setting the baud rate of Serial Monitor (Arduino)
+ delay(100);
+pinMode(trigPin, OUTPUT); // Sets the trigPin as an Output
+pinMode(echoPin, INPUT);
+pinMode(trigPin1, OUTPUT); // Sets the trigPin as an Output
+pinMode(echoPin1, INPUT);// Sets the echoPin as an Input
+pinMode(4,OUTPUT);
+pinMode(5,OUTPUT);
+Serial.begin(9600); // Starts the serial communication
+}
+void loop()
+{
+digitalWrite(trigPin, LOW);
+delayMicroseconds(2);
+digitalWrite(trigPin, HIGH);
+delayMicroseconds(10);
+digitalWrite(trigPin, LOW);
+duration = pulseIn(echoPin, HIGH);
+distance= duration*0.034/2;
+if((distance>=20))
+{
+digitalWrite(6,HIGH);
+digitalWrite(7,LOW);
+digitalWrite(8,LOW);
+digitalWrite(9,LOW);
+}
+if((distance>=10)&& (distance<20))
+{
+digitalWrite(6,HIGH);
+digitalWrite(7,HIGH);
+digitalWrite(8,LOW);
+digitalWrite(9,LOW);
+}
+ if((distance>5)&&(distance<10))
+{
+digitalWrite(6,HIGH);
+digitalWrite(7,HIGH);
+digitalWrite(8,HIGH);
+digitalWrite(9,LOW);
+SendMessage();
+}
+if(distance<=4)
+{
+digitalWrite(6,HIGH);
+digitalWrite(7,HIGH);
+digitalWrite(8,HIGH);
+digitalWrite(9,HIGH);
+ digitalWrite(4,LOW);
+ digitalWrite(5,HIGH);
+SendMessage();
+}
+if((distance1<=40))
+{
+ digitalWrite(4,LOW);delay(100);
+ digitalWrite(5,HIGH);delay(100);
+delay(500);
+}
+else
+{
+ digitalWrite(4,HIGH);
+ digitalWrite(5,LOW);
+delay(500);}
+}
+void SendMessage()
+{
+ mySerial.println("AT+CMGF=1"); //Sets the GSM Module in Text Mode
+ delay(1000); // Delay of 1000 milli seconds or 1 second
+ mySerial.println("AT+CMGS=\"+919448905388\"\r"); // Replace x with mobile number
+ delay(1000);
+ mySerial.println("I am SMS from GSM Module");// The SMS text you want to send
+ delay(100);
+ mySerial.println((char)26);// ASCII code of CTRL+Z
+ delay(1000);
+}
